@@ -116,7 +116,7 @@ export function AuthForm({ className, ...props }: React.ComponentProps<"div">) {
           </>
         ) : (
           <>
-            <h1 className="text-2xl font-bold">Welcome to Foldex</h1>
+            <h1 className="text-2xl font-bold">Welcome to Pslmp</h1>
             <p className="text-sm text-balance text-muted-foreground">
               Sign in or create an account to continue
             </p>

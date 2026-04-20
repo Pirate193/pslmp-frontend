@@ -26,7 +26,7 @@ export default function SignInPage() {
       <div className="relative hidden bg-muted lg:block">
         <img
           src="/auth-bg.jpg"
-          alt="CodeCut — AI video editor"
+          alt="pslmp"
           className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
         />
       </div>

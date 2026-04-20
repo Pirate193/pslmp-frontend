@@ -1,0 +1,84 @@
+'use client';
+
+import { useEffect, useRef } from 'react';
+import { usePathname } from 'next/navigation';
+import { useTabStore } from '@/stores/tabstore';
+import { parseTabFromUrl } from './useTabNavigation';
+
+/**
+ * Hook that synchronizes the browser URL with the tab store.
+ *
+ * Responsibilities:
+ * 1. On initial mount, if the current URL matches a tab-compatible route
+ *    and no tabs exist yet, open it as the first tab.
+ * 2. When the active tab changes, update the browser URL.
+ * 3. Handle browser back/forward navigation by syncing with tab store.
+ */
+export function useTabSync() {
+  const pathname = usePathname();
+  const { tabs, activeTabId, openTab, setActiveTab } = useTabStore();
+  const isInitialized = useRef(false);
+
+  // 1. On initial page load, sync URL → tab store
+  useEffect(() => {
+    if (isInitialized.current) return;
+    isInitialized.current = true;
+
+    const parsed = parseTabFromUrl(pathname);
+    if (!parsed) return;
+
+    // Check if a tab for this URL already exists
+    const tabId = `${parsed.type}-${parsed.itemId}`;
+    const existingTab = tabs.find((t) => t.id === tabId);
+
+    if (existingTab) {
+      // Tab already exists, just activate it
+      if (activeTabId !== tabId) {
+        setActiveTab(tabId);
+      }
+    } else if (tabs.length === 0) {
+      // No tabs exist; open the current URL as the first tab
+      // Title is a placeholder — will be updated by the content component
+      openTab({
+        type: parsed.type,
+        itemId: parsed.itemId,
+        folderId: parsed.folderId,
+        title: getDefaultTitle(parsed.type),
+        url: pathname,
+      });
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // 2. Listen for popstate (browser back/forward)
+  useEffect(() => {
+    const handlePopState = () => {
+      const parsed = parseTabFromUrl(window.location.pathname);
+      if (!parsed) return;
+
+      const tabId = `${parsed.type}-${parsed.itemId}`;
+      const existingTab = tabs.find((t) => t.id === tabId);
+
+      if (existingTab) {
+        setActiveTab(tabId);
+      } else {
+        openTab({
+          type: parsed.type,
+          itemId: parsed.itemId,
+          folderId: parsed.folderId,
+          title: getDefaultTitle(parsed.type),
+          url: window.location.pathname,
+        });
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [tabs, setActiveTab, openTab]);
+}
+
+function getDefaultTitle(type: string): string {
+  switch (type) {
+    case 'note': return 'Note';
+    default: return 'Tab';
+  }
+}
