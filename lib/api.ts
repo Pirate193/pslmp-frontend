@@ -20,6 +20,7 @@ export const notesapi = {
 export const folderapi = {
   list:()=>
     apiClient.get<Folder[]>('/api/folders').then(r=>r.data),
+  get:(id:string)=> apiClient.get<Folder>(`/api/folders/${id}`).then(r=>r.data),
   create:(body:CreateFolderBody)=>
     apiClient.post<Folder>('/api/folders',body).then(r=>r.data),
   update:(id:string,body:UpdateFolderBody)=>

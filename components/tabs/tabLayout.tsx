@@ -31,7 +31,7 @@ export function TabLayout({ children }: TabLayoutProps) {
   // navigating back to a tab-compatible route.
   if (tabs.length > 0 && isTabRoute) {
     return (
-      <div className="flex flex-col h-full overflow-hidden">
+      <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
         <TabBar />
         <TabContent />
       </div>

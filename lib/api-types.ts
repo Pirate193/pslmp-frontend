@@ -1,8 +1,15 @@
+// BlockNote stores documents as an array of block objects.
+// jsonb in PostgreSQL is automatically parsed by Drizzle,
+// so by the time it reaches the frontend via Axios it's already
+// a JavaScript array — no JSON.parse() needed.
+export type BlockNoteContent = Record<string, unknown>[] | null;
+
 export type Note = {
   id: string;
   title: string;
   folderId: string | null;
-  content: unknown;
+  content: BlockNoteContent;
+  isPinned: boolean;
   createdAt: string;
   updatedAt: string;
 };
@@ -14,6 +21,8 @@ export type Folder = {
   name: string;
   parentId: string | null;
   userId: string;
+  isPinned: boolean;
+  color: string;
   createdAt: string;
   updatedAt: string;
   children?: Folder[];
@@ -68,24 +77,30 @@ export type Session = {
 // request body types — what you SEND to the backend
 export type CreateNoteBody = {
   title?: string;
-  content?: unknown;
+  content?: BlockNoteContent;
   folderId?: string;
+  isPinned?: boolean;
 };
 
 export type UpdateNoteBody = {
   title?: string;
-  content?: unknown;
+  content?: BlockNoteContent;
   folderId?: string | null;
+  isPinned?: boolean;
 };
 
 export type CreateFolderBody = {
   name: string;
   parentId?: string;
+  isPinned?: boolean;
+  color?: string;
 };
 
 export type UpdateFolderBody = {
   name?: string;
   parentId?: string | null;
+  isPinned?: boolean;
+  color?: string;
 };
 
 export type CreateTemplateBody = {

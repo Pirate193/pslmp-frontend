@@ -32,7 +32,7 @@ export function TabContent() {
   }
 
   return (
-    <div className="flex-1 overflow-hidden relative">
+    <div className="flex-1 min-h-0 overflow-hidden relative">
       {tabs.map((tab) => (
         <div
           key={tab.id}

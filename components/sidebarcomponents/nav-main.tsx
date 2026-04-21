@@ -20,16 +20,8 @@ export function NavMain({
     isActive?: boolean;
   }[];
 }) {
-  const [open, setOpen] = useState(false);
   return (
-    <>
       <SidebarMenu>
-        <SidebarMenuItem>
-          <SidebarMenuButton onClick={() => setOpen(true)}>
-            <Search />
-            <span>Search</span>
-          </SidebarMenuButton>
-        </SidebarMenuItem>
         {items.map((item) => (
           <SidebarMenuItem key={item.title}>
             <SidebarMenuButton asChild isActive={item.isActive} 
@@ -47,6 +39,5 @@ export function NavMain({
           </SidebarMenuItem>
         ))}
       </SidebarMenu>
-    </>
   );
 }

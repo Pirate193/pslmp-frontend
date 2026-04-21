@@ -11,6 +11,13 @@ export const useFolders = () =>{
     })
 }
 
+export const useFolder = (id:string)=>{
+    return useQuery({
+        queryKey:queryKeys.folders.detail(id),
+        queryFn:()=>folderapi.get(id),
+        enabled:!!id
+    })
+}
 export const useCreateFolder = () =>{
   const queryclient = useQueryClient();
   return useMutation({

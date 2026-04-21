@@ -6,6 +6,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import { Toaster } from "sonner";
 import { AppSidebar } from "./app-sidebar";
+import { TabLayout } from "../tabs/tabLayout";
 
 
 const DEFAULT_SIDEBAR_WIDTH = 280;
@@ -142,7 +143,9 @@ export function ResizableSidebarLayout({
       />
       
       <SidebarInset>
-        {children}
+        <TabLayout>
+          {children}
+        </TabLayout>
         <Toaster />
       </SidebarInset>
     </SidebarProvider>

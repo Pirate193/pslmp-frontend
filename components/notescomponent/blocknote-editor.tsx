@@ -39,9 +39,11 @@ import { flashcardblock } from "./flashcardBlock";
 import { MathInline } from "./Mathblock";
 import { ScrollArea } from "../ui/scroll-area";
 
+import { BlockNoteContent } from "@/lib/api-types";
+
 interface BlocknoteEditorProps {
-  initialContent?: string;
-  onChangeContent: (value: string) => void;
+  initialContent?: BlockNoteContent;
+  onChangeContent: (value: BlockNoteContent) => void;
   editable?: boolean;
 }
 const customSchema = BlockNoteSchema.create({
@@ -169,96 +171,35 @@ const BlocknoteEditor = ({
   const handleUpload = async (file: File)=> {
     
   };
-  // Parse initial content safely
-  const parseInitialContent = (): PartialBlock[] | undefined => {
-    if (
-      !initialContent ||
-      initialContent.trim() === "" ||
-      initialContent === '""'
-    ) {
-      return undefined;
-    }
-
-    try {
-      const parsed = JSON.parse(initialContent);
-
-      // Validate that we got an array
-      if (!Array.isArray(parsed)) {
-        console.warn(
-          "Initial content is not an array, starting with empty editor",
-        );
-        return undefined;
-      }
-
-      // Validate and clean each block
-      const validBlocks = parsed.filter((block: any) => {
-        if (!block || typeof block !== "object") {
-          console.warn("Invalid block found:", block);
-          return false;
-        }
-
-        // Ensure required properties exist
-        if (!block.type || !block.id) {
-          console.warn("Block missing required properties:", block);
-          return false;
-        }
-
-        return true;
-      });
-
-      return validBlocks.length > 0 ? validBlocks : undefined;
-    } catch (error) {
-      console.error("Failed to parse initial content:", error);
-      return undefined;
-    }
-  };
-  const parseContent = (
-    content: string | undefined,
-  ): PartialBlock[] | undefined => {
-    if (!content || content.trim() === "" || content === '""') return undefined;
-    try {
-      const parsed = JSON.parse(content);
-      return Array.isArray(parsed) ? parsed : undefined;
-    } catch {
-      return undefined;
-    }
-  };
-
   // Create editor with proper typing
   const editor = useCreateBlockNote({
-    initialContent: parseInitialContent(),
+    initialContent: (initialContent && Array.isArray(initialContent) && initialContent.length > 0) 
+      ? (initialContent as PartialBlock[]) 
+      : undefined,
     schema: customSchema,
   });
 
   useEffect(() => {
-    if (!editor || !initialContent) return;
+    if (!editor || !initialContent || !Array.isArray(initialContent)) return;
 
-    // 1. Get the current editor state as a string
+    // Fast check: serialize both correctly OR just check if the user is typing
+    // If the user is actively typing, don't overwrite the editor
+    const isFocused = editor.domElement?.contains(document.activeElement);
+    if (isFocused) {
+      return;
+    }
+    
+    // Convert current document back to array to compare deeply, or just compare stringified versions
+    // as a quick hack to avoid infinite update loops
     const currentEditorContent = JSON.stringify(editor.document);
+    const newContentStr = JSON.stringify(initialContent);
 
-    // 2. Compare with the new content from postgres
-    // If they are different, it means the update came from OUTSIDE (LLM or other tab)
-    if (currentEditorContent !== initialContent) {
-      // 3. Optional: Don't interrupt if the user is actively typing (focused)
-      // Removing this check allows "live" updates but might move cursor.
-      // For LLM updates (which happen when user is waiting), this is safe.
-      // if (editor.isFocused()) return;
-      const isFocused = editor.domElement?.contains(document.activeElement);
-
-      if (isFocused) {
-        return;
-      }
-
-      const parsed = parseContent(initialContent);
-      if (parsed) {
-        // 4. Replace the blocks in the editor
+    if (currentEditorContent !== newContentStr) {
         const timeoutId = setTimeout(() => {
-          editor.replaceBlocks(editor.document, parsed);
+          editor.replaceBlocks(editor.document, initialContent as PartialBlock[]);
         }, 0);
 
-        // Cleanup in case the effect runs again or component unmounts
         return () => clearTimeout(timeoutId);
-      }
     }
   }, [initialContent, editor]);
   const checkForMath = (
@@ -366,10 +307,10 @@ const BlocknoteEditor = ({
     checkForMath(editor);
     try {
       const blocks = editor.document;
-      const content = JSON.stringify(blocks, null, 2);
-      onChangeContent(content);
+      // Pass the actual array of blocks out, not a string
+      onChangeContent(blocks as unknown as BlockNoteContent);
     } catch (error) {
-      console.error("Failed to serialize content:", error);
+      console.error("Failed to propagate content:", error);
     }
   };
 
@@ -384,7 +325,7 @@ const BlocknoteEditor = ({
       data-gramm="false"
       data-gramm_editor="false"
       data-enable-grammarly="false"
-      className="min-h-[400px]"
+      
     >
       <SuggestionMenuController
         triggerCharacter="/"
