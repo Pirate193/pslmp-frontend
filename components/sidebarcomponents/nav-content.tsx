@@ -12,6 +12,7 @@ import { useState, useMemo } from "react"
 import { Folder as FolderType, NoteListItem } from "@/lib/api-types"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible"
 import { Button } from "../ui/button"
+import { FOLDER_COLORS } from "@/lib/foldercolor"
 
 type SortOption = "A-Z" | "Z-A" | "Newest" | "Oldest";
 
@@ -35,7 +36,7 @@ export const NavContent = () => {
 
     const handleCreateFolder = async () => {
         try {
-            await createFolder({ name: "New Folder" });
+            await createFolder({ name: "New Folder", color: FOLDER_COLORS[0].value});
             toast.success("Folder created successfully");
         } catch (error) {
             toast.error("Error creating folder");
@@ -89,7 +90,7 @@ export const NavContent = () => {
             <SidebarHeader className="gap-3.5 border-b p-4">
                 <div className="flex w-full items-center justify-between">
                     <div className="text-base font-medium text-foreground">
-                        Files
+                        
                     </div>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -181,7 +182,7 @@ export const NavContent = () => {
                                     <SidebarGroupLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider m-0 p-0">Workspace</SidebarGroupLabel>
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
-                                            <Button variant="ghost" size="icon" className="h-5 w-5 text-muted-foreground hover:text-foreground">
+                                            <Button variant="ghost" size="icon" className="h-5 w-5 text-muted-foreground hover:text-foreground cursor-pointer">
                                                 <Filter className="h-3 w-3" />
                                             </Button>
                                         </DropdownMenuTrigger>
@@ -192,7 +193,7 @@ export const NavContent = () => {
                                                 <DropdownMenuItem 
                                                     key={opt} 
                                                     onClick={() => setSortOption(opt)}
-                                                    className="justify-between"
+                                                    className="justify-between cursor-pointer"
                                                 >
                                                     {opt}
                                                     {sortOption === opt && <span className="w-1.5 h-1.5 rounded-full bg-primary" />}

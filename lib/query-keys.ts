@@ -24,4 +24,8 @@ export const queryKeys = {
   auth: {
     session: ["auth", "session"] as const,
   },
+  settings: {
+    keys: ["settings", "keys"] as const,
+    userSettings: ["settings", "userSettings"] as const,
+  },
 };

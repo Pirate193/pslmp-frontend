@@ -11,7 +11,7 @@ export const useChats = ()=>{
     })
 }
 
-export const useChat = (id:string)=>{
+export const useChatMessages = (id:string)=>{
     return useQuery({
         queryKey:queryKeys.chats.detail(id),
         queryFn:()=>chatapi.get(id),

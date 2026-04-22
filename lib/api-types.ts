@@ -14,7 +14,7 @@ export type Note = {
   updatedAt: string;
 };
 
-export type NoteListItem = Omit<Note, "content">; // list never returns content
+export type NoteListItem = Omit<Note, "content"> & { preview: string | null };
 
 export type Folder = {
   id: string;
@@ -119,3 +119,21 @@ export type AddMessageBody = {
   content: string;
   parts: unknown;
 };
+
+// Settings / API Keys
+export type ApiKeyInfo = {
+  provider: string;
+  displayHint: string;
+  isValid: boolean;
+  updatedAt: string;
+};
+
+export type UserSettings = {
+  systemPrompt: string | null;
+  defaultSystemPrompt: string;
+};
+
+export type KeyValidationResult = {
+  valid: boolean;
+  error?: string;
+};

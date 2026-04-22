@@ -1,5 +1,5 @@
 import apiClient from "./api-client"
-import { AddMessageBody, Chat, CreateChatBody, CreateFolderBody, CreateNoteBody, CreateTemplateBody, Folder, Message, Note, NoteListItem, Template, UpdateFolderBody, UpdateNoteBody } from "./api-types"
+import { AddMessageBody, ApiKeyInfo, Chat, CreateChatBody, CreateFolderBody, CreateNoteBody, CreateTemplateBody, Folder, KeyValidationResult, Message, Note, NoteListItem, Template, UpdateFolderBody, UpdateNoteBody, UserSettings } from "./api-types"
 
 
 export const notesapi = {
@@ -61,4 +61,19 @@ export const chatapi = {
     apiClient.put<Chat>(`/api/chats/${id}`,body).then(r=>r.data),
   addmessage:(id:string,body:AddMessageBody)=>
     apiClient.post<Message>(`/api/chats/${id}/messages`,body).then(r=>r.data),
+}
+
+export const settingsapi = {
+  getKeys: () =>
+    apiClient.get<ApiKeyInfo[]>('/api/settings/keys').then(r => r.data),
+  saveKey: (provider: string, key: string) =>
+    apiClient.post<ApiKeyInfo>('/api/settings/keys', { provider, key }).then(r => r.data),
+  deleteKey: (provider: string) =>
+    apiClient.delete<{ success: boolean }>(`/api/settings/keys/${provider}`).then(r => r.data),
+  validateKey: (provider: string) =>
+    apiClient.post<KeyValidationResult>(`/api/settings/keys/${provider}/validate`).then(r => r.data),
+  getSettings: () =>
+    apiClient.get<UserSettings>('/api/settings').then(r => r.data),
+  updateSettings: (data: { systemPrompt?: string | null }) =>
+    apiClient.put<UserSettings>('/api/settings', data).then(r => r.data),
 }
