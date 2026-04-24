@@ -7,7 +7,7 @@ export function proxy(request: NextRequest) {
   // Public routes — never redirect these
   const isAuthRoute =
     pathname.startsWith("/sign-in") || pathname.startsWith("/sign-up");
-  const isPublicRoute = pathname === "/" || pathname.startsWith("/api");
+  const isPublicRoute = pathname === "/" || pathname === "/pricing" || pathname === "/about" || pathname.startsWith("/api");
 
   // better-auth stores the session token in a cookie named "better-auth.session_token"
   const sessionToken =

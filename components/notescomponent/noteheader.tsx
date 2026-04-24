@@ -149,22 +149,24 @@ const Notesheader = ({ noteId, folderId }: Props) => {
   };
   return (
     <>
-      <div className="p-4 flex items-center justify-between gap-2">
+      <div className="p-2 flex items-center justify-between gap-2">
         {/*breadcrumb  */}
         <div>
           <div className="flex items-center gap-2  ">
             <SidebarTrigger />
             <Breadcrumb>
               <BreadcrumbList>
-                <BreadcrumbItem className="hidden md:inline-flex">
+                {folder && <BreadcrumbItem className="hidden md:inline-flex">
                   <BreadcrumbLink className="flex items-center gap-2">
                     <Folder className="h-4 w-4" />
                     <span>{folder?.name}</span>
                   </BreadcrumbLink>
                 </BreadcrumbItem>
-                <BreadcrumbSeparator className="hidden md:block">
+                }
+                {folder && <BreadcrumbSeparator className="hidden md:block">
                   <SlashIcon />
-                </BreadcrumbSeparator>
+                </BreadcrumbSeparator>}
+                
                 <BreadcrumbItem>
                   <BreadcrumbPage className="font-semibold line-clamp-1">
                     {note?.title}
@@ -177,6 +179,7 @@ const Notesheader = ({ noteId, folderId }: Props) => {
         <div className="flex items-center gap-2">
             <Button
               className="cursor-pointer"
+              size="icon-sm"
             >
               <Sparkles className="h-4 w-4" />
             </Button>

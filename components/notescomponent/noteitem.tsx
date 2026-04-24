@@ -82,11 +82,11 @@ const NoteItem = ({ title, folderId, noteId, isActive }: NoteItemProps) => {
   return (
     <>
     <ContextMenu>
-      <ContextMenuTrigger>
+      <ContextMenuTrigger asChild>
       <div
         ref={setNodeRef}
         className={cn(
-          "group/item mt-1 flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-accent/50 ",
+          "group/item mt-1 flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-accent/50 w-full overflow-hidden",
           isActive && "bg-primary/10 dark:bg-primary/10 font-medium text-foreground",
           isDragging && "cursor-grabbing opacity-40",
         )}
@@ -95,9 +95,8 @@ const NoteItem = ({ title, folderId, noteId, isActive }: NoteItemProps) => {
         {...attributes}
       >
         <FileText className="h-4 w-4 shrink-0" />
-        <span className="flex-1 truncate">{title}</span>
-        <div className="flex items-center gap-0.5 opacity-0 group-hover/item:opacity-100 transition-opacity">
-        </div>
+        <span className="flex-1 truncate min-w-0">{title}</span>
+        
       </div>
       </ContextMenuTrigger>
       <ContextMenuContent>

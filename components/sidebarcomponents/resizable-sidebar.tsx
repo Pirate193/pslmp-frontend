@@ -134,7 +134,7 @@ export function ResizableSidebarLayout({
           : undefined
       }
     >
-      <AppSidebar variant="inset"/>
+      <AppSidebar variant="inset" />
       
       {/* 3. Inject the new sub-component here */}
       <SidebarDragHandle 

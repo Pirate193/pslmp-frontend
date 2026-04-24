@@ -86,7 +86,7 @@ export const NavContent = () => {
     }, [filteredFolders, filteredNotes, sortOption]);
 
     return (
-        <Sidebar collapsible="none" className="hidden flex-1 md:flex">
+        <Sidebar collapsible="none" className="hidden flex-1 md:flex min-w-0">
             <SidebarHeader className="gap-3.5 border-b p-4">
                 <div className="flex w-full items-center justify-between">
                     <div className="text-base font-medium text-foreground">

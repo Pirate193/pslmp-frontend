@@ -28,7 +28,7 @@ import {
   PromptInputTools,
   usePromptInputAttachments,
 } from "@/components/ai-elements/prompt-input";
-import { GlobeIcon } from "lucide-react";
+import { CopyIcon, GlobeIcon, RefreshCcwIcon } from "lucide-react";
 import { useState, useMemo, useRef, useEffect } from "react";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport, UIMessage } from "ai";
@@ -39,6 +39,8 @@ import {
 } from "@/components/ai-elements/conversation";
 import {
   Message,
+  MessageAction,
+  MessageActions,
   MessageContent,
   MessageResponse,
 } from "@/components/ai-elements/message";
@@ -50,6 +52,9 @@ import { useAiStore } from "@/stores/aistore";
 import { useAddMessage, useChatMessages } from "@/hooks/use-chat";
 import { SidebarTrigger } from "../ui/sidebar";
 import { ChatHistoryPopover } from "./chathistorypopover";
+import { CreateFolder, CreateNote, GenerateCodeSnippet, GenerateMermaidDiagram, GetFolderItems, LoadingCodeSnippet, LoadingFolder, LoadingMermaidDiagram, LoadingNote, SourceGrid, UpdateFolder, UpdateNote, YouTubeEmbed } from "./toolui";
+import { Tool, ToolContent, ToolHeader } from "../ai-elements/tool";
+import { Spinner } from "../ui/spinner";
 
 const AI_CHAT_URL = `${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000"}/api/ai/chat`;
 
@@ -105,7 +110,7 @@ const AiChatComponent = ({chatId}:{chatId:string}) => {
   const setPendingMessage = useAiStore((state) => state.setPendingMessage);
   const hasInitialized = useRef(false);
 
-  const { messages, status, sendMessage,setMessages } = useChat({
+  const { messages, status, sendMessage,setMessages,regenerate } = useChat({
     transport: new DefaultChatTransport({
       api: AI_CHAT_URL,
       credentials: "include",
@@ -249,16 +254,42 @@ const AiChatComponent = ({chatId}:{chatId:string}) => {
       </div>
         <Conversation>
           <ConversationContent>
-            {messages.map((message) => (
+            {messages.map((message, messageIndex) => (
               <Message from={message.role} key={message.id}>
                 <MessageContent>
                   {message.parts.map((part, i) => {
                     switch (part.type) {
                       case "text":
+                      const isLastMessage =message.parts
+                .filter((p) => p.type === "text")
+                .map((p) => p.text)
+                .join("\n");
                         return (
-                          <MessageResponse key={`${message.id}-${i}`}>
+                          <div  key={`${message.id}-${i}`}  > 
+                          <MessageResponse >
                             {part.text}
                           </MessageResponse>
+                          {message.role === "assistant" && isLastMessage && (
+                            <MessageActions>
+                              <MessageAction
+                                onClick={() => regenerate()}
+                                label="Retry"
+                                className="cursor-pointer"
+                              >
+                                <RefreshCcwIcon className="size-3" />
+                              </MessageAction>
+                              <MessageAction
+                                onClick={() =>
+                                  navigator.clipboard.writeText(part.text)
+                                }
+                                label="Copy"
+                                className="cursor-pointer"
+                              >
+                                <CopyIcon className="size-3" />
+                              </MessageAction>
+                            </MessageActions>
+                          )}
+                          </div>
                         );
                        case "reasoning":
                           return (
@@ -276,6 +307,134 @@ const AiChatComponent = ({chatId}:{chatId:string}) => {
                             </Reasoning>
                           );
                         
+                        case "tool-createNote":
+                          return (
+                          <div key={`${message.id}-${i}`}>
+                            {part.state === "input-available" && (
+                              <LoadingNote title="Creating Note" />
+                            )}
+                            {part.state === "output-available" && (
+                              <CreateNote output={part.output} />
+                            )}
+                          </div>
+                        );
+          
+
+                      case "tool-updateNote":
+                        return (
+                          <div key={`${message.id}-${i}`}>
+                            {part.state === "input-available" && (
+                              <LoadingNote title="Updating Note" />
+                            )}
+                            {part.state === "output-available" && (
+                              <UpdateNote output={part.output} />
+                            )}
+                          </div>
+                        );
+                
+                      case "tool-getfolderitems":
+                        return (
+                          <Tool key={`${message.id}-${i}`}>
+                            <ToolHeader
+                              state={part.state}
+                              type="tool-getfolderitems"
+                              title="Analyzing Folder"
+                            />
+                            <ToolContent>
+                              {part.state === "output-available" && (
+                                <GetFolderItems output={part.output} />
+                              )}
+                            </ToolContent>
+                          </Tool>
+                        );
+                      
+
+                      
+                      case "tool-searchTheWeb":
+                        return (
+                          <div key={`${message.id}-${i}`}>
+                            {part.state === "input-available" && (
+                              <div className="flex items-center gap-2">
+                                <Spinner />{" "}
+                                <p className="text-sm text-muted-foreground">
+                                  Searching the Web
+                                </p>
+                              </div>
+                            )}
+                            {part.state === "output-available" && (
+                              <SourceGrid output={part.output} />
+                            )}
+                          </div>
+                        );
+                      
+                      case "tool-getNoteContent":
+                        return (
+                          <Tool key={`${message.id}-${i}`}>
+                            <ToolHeader
+                              state={part.state}
+                              type="tool-getNoteContent"
+                              title="Fetching Note Content"
+                            />
+                          </Tool>
+                        );
+                      
+                      case "tool-generateCodeSnippet":
+                        return (
+                          <div key={`${message.id}-${i}`}>
+                            {part.state === "input-available" && (
+                              <LoadingCodeSnippet title="Generating Code" />
+                            )}
+                            {part.state === "output-available" && (
+                              <GenerateCodeSnippet output={part.output} />
+                            )}
+                          </div>
+                        );
+                      
+                      case "tool-generateMermaidDiagram":
+                        return (
+                          <div key={`${message.id}-${i}`}>
+                            {part.state === "input-available" && (
+                              <LoadingMermaidDiagram title="Generating Mermaid Diagram" />
+                            )}
+                            {part.state === "output-available" && (
+                              <GenerateMermaidDiagram output={part.output} />
+                            )}
+                          </div>
+                        );
+                      
+                      case "tool-youtubeVideo":
+                        return (
+                          <div key={`${message.id}-${i}`}>
+                            {part.state === "output-available" && (
+                              <YouTubeEmbed output={part.output} />
+                            )}
+                          </div>
+                        );
+                      
+                      case "tool-createFolder":
+                        return (
+                          <div key={`${message.id}-${i}`}>
+                            {part.state === "input-available" && (
+                              <LoadingFolder title="Creating Folder" />
+                            )}
+                            {part.state === "output-available" && (
+                              <CreateFolder output={part.output} />
+                            )}
+                          </div>
+                        );
+                      
+                      case "tool-updateFolder":
+                        return (
+                          <div key={`${message.id}-${i}`}>
+                            {part.state === "input-available" && (
+                              <LoadingFolder title="Updating Folder" />
+                            )}
+                            {part.state === "output-available" && (
+                              <UpdateFolder output={part.output} />
+                            )}
+                          </div>
+                        );
+                      
                       default:
                         return null;
                     }
