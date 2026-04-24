@@ -66,9 +66,11 @@ export function AuthForm({ className, ...props }: React.ComponentProps<"div">) {
     setLoading(false);
 
     if (error) {
+      console.log(error);
       setError("Invalid or expired code. Please try again.");
       setOtp(""); // clear so user can re-enter
     } else {
+      console.log("OTP verified successfully")
       router.push("/home");
     }
   }
