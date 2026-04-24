@@ -7,6 +7,9 @@ RUN bun install --frozen-lockfile
 
 COPY . .
 
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+
 # Build the Next.js production app
 RUN bun run build
 
