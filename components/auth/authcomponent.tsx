@@ -30,6 +30,7 @@ export function AuthForm({ className, ...props }: React.ComponentProps<"div">) {
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState("");
+  const [resendLoading, setResendLoading] = useState(false);
 
   // Step 1 — Send OTP to email
   async function handleSendOtp(e: React.FormEvent) {
@@ -84,12 +85,12 @@ export function AuthForm({ className, ...props }: React.ComponentProps<"div">) {
   async function handleResend() {
     setError("");
     setOtp("");
-    setLoading(true);
+    setResendLoading(true);
     await authClient.emailOtp.sendVerificationOtp({
       email,
       type: "sign-in",
     });
-    setLoading(false);
+    setResendLoading(false);
   }
 
   // Google
@@ -239,6 +240,12 @@ export function AuthForm({ className, ...props }: React.ComponentProps<"div">) {
               Verifying...
             </div>
           )}
+          {resendLoading && (
+            <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Resending...
+            </div>
+          )}
 
           <div className="flex flex-col gap-2 text-center">
             <p className="text-sm text-muted-foreground">
@@ -246,8 +253,8 @@ export function AuthForm({ className, ...props }: React.ComponentProps<"div">) {
               <button
                 type="button"
                 onClick={handleResend}
-                disabled={loading}
-                className="text-foreground underline underline-offset-4 hover:text-primary transition-colors disabled:opacity-50"
+                disabled={resendLoading || loading}
+                className="text-foreground underline underline-offset-4 hover:text-primary transition-colors disabled:opacity-50 cursor-pointer"
               >
                 Resend
               </button>
@@ -260,7 +267,7 @@ export function AuthForm({ className, ...props }: React.ComponentProps<"div">) {
                 setOtp("");
                 setError("");
               }}
-              className="flex items-center justify-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+              className="flex items-center justify-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
             >
               <ArrowLeft className="h-3 w-3" />
               Use a different email
