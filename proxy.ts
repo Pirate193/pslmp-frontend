@@ -4,13 +4,12 @@ import type { NextRequest } from "next/server";
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Public routes — never redirect these
-  const isAuthRoute =
-    pathname.startsWith("/sign-in") || pathname.startsWith("/sign-up");
+  const isAuthRoute = pathname.startsWith("/sign-in") || pathname.startsWith("/sign-up");
   const isPublicRoute = pathname === "/" || pathname === "/pricing" || pathname === "/about" || pathname.startsWith("/api");
 
-  // better-auth stores the session token in a cookie named "better-auth.session_token"
+  // THE FIX: Check for BOTH the production (Secure) and development cookies
   const sessionToken =
+    request.cookies.get("__Secure-better-auth.session_token")?.value ||
     request.cookies.get("better-auth.session_token")?.value;
 
   // Authenticated user trying to visit sign-in/sign-up → send to /home
